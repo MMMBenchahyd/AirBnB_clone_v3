@@ -14,12 +14,12 @@ def places_by_city(city_id):
     retrieves all Place objects by city
     :return: json of all Places
     """
-    place_list = []
-    city_obj = storage.get("City", str(city_id))
-    for obj in city_obj.places:
-        place_list.append(obj.to_json())
+    plc_list = []
+    city_objct = storage.get("City", str(city_id))
+    for obj in city_objct.places:
+        plc_list.append(obj.to_json())
 
-    return jsonify(place_list)
+    return jsonify(plc_list)
 
 
 @app_views.route("/cities/<city_id>/places", methods=["POST"],
@@ -29,26 +29,26 @@ def place_create(city_id):
     create place route
     :return: newly created Place obj
     """
-    place_json = request.get_json(silent=True)
-    if place_json is None:
+    plc_json = request.get_json(silent=True)
+    if plc_json is None:
         abort(400, 'Not a JSON')
-    if not storage.get("User", place_json["user_id"]):
+    if not storage.get("User", plc_json["user_id"]):
         abort(404)
     if not storage.get("City", city_id):
         abort(404)
-    if "user_id" not in place_json:
+    if "user_id" not in plc_json:
         abort(400, 'Missing user_id')
-    if "name" not in place_json:
+    if "name" not in plc_json:
         abort(400, 'Missing name')
 
-    place_json["city_id"] = city_id
+    plc_json["city_id"] = city_id
 
-    new_place = Place(**place_json)
+    new_place = Place(**plc_json)
     new_place.save()
-    resp = jsonify(new_place.to_json())
-    resp.status_code = 201
+    res = jsonify(new_place.to_json())
+    res.status_code = 201
 
-    return resp
+    return res
 
 
 @app_views.route("/places/<place_id>",  methods=["GET"],
@@ -60,12 +60,12 @@ def place_by_id(place_id):
     :return: place obj with the specified id or error
     """
 
-    fetched_obj = storage.get("Place", str(place_id))
+    fetched_objct = storage.get("Place", str(place_id))
 
-    if fetched_obj is None:
+    if fetched_objct is None:
         abort(404)
 
-    return jsonify(fetched_obj.to_json())
+    return jsonify(fetched_objct.to_json())
 
 
 @app_views.route("/places/<place_id>",  methods=["PUT"],
@@ -76,23 +76,23 @@ def place_put(place_id):
     :param place_id: Place object ID
     :return: Place object and 200 on success, or 400 or 404 on failure
     """
-    place_json = request.get_json(silent=True)
+    plc_json = request.get_json(silent=True)
 
-    if place_json is None:
+    if plc_json is None:
         abort(400, 'Not a JSON')
 
-    fetched_obj = storage.get("Place", str(place_id))
+    fetched_objct = storage.get("Place", str(place_id))
 
-    if fetched_obj is None:
+    if fetched_objct is None:
         abort(404)
 
-    for key, val in place_json.items():
+    for key, val in plc_json.items():
         if key not in ["id", "created_at", "updated_at", "user_id", "city_id"]:
-            setattr(fetched_obj, key, val)
+            setattr(fetched_objct, key, val)
 
-    fetched_obj.save()
+    fetched_objct.save()
 
-    return jsonify(fetched_obj.to_json())
+    return jsonify(fetched_objct.to_json())
 
 
 @app_views.route("/places/<place_id>",  methods=["DELETE"],
@@ -104,12 +104,12 @@ def place_delete_by_id(place_id):
     :return: empty dict with 200 or 404 if not found
     """
 
-    fetched_obj = storage.get("Place", str(place_id))
+    fetched_objct = storage.get("Place", str(place_id))
 
-    if fetched_obj is None:
+    if fetched_objct is None:
         abort(404)
 
-    storage.delete(fetched_obj)
+    storage.delete(fetched_objct)
     storage.save()
 
     return jsonify({})

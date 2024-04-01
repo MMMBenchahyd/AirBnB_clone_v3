@@ -14,16 +14,16 @@ def reviews_by_place(place_id):
     retrieves all Review objects by place
     :return: json of all reviews
     """
-    review_list = []
-    place_obj = storage.get("Place", str(place_id))
+    rev_list = []
+    place_objct = storage.get("Place", str(place_id))
 
-    if place_obj is None:
+    if place_objct is None:
         abort(404)
 
-    for obj in place_obj.reviews:
-        review_list.append(obj.to_json())
+    for obj in place_objct.reviews:
+        rev_list.append(obj.to_json())
 
-    return jsonify(review_list)
+    return jsonify(rev_list)
 
 
 @app_views.route("/places/<place_id>/reviews", methods=["POST"],
@@ -33,26 +33,26 @@ def review_create(place_id):
     create REview route
     :return: newly created Review obj
     """
-    review_json = request.get_json(silent=True)
-    if review_json is None:
+    rev_json = request.get_json(silent=True)
+    if rev_json is None:
         abort(400, 'Not a JSON')
     if not storage.get("Place", place_id):
         abort(404)
-    if not storage.get("User", review_json["user_id"]):
+    if not storage.get("User", rev_json["user_id"]):
         abort(404)
-    if "user_id" not in review_json:
+    if "user_id" not in rev_json:
         abort(400, 'Missing user_id')
-    if "text" not in review_json:
+    if "text" not in rev_json:
         abort(400, 'Missing text')
 
-    review_json["place_id"] = place_id
+    rev_json["place_id"] = place_id
 
-    new_review = Review(**review_json)
-    new_review.save()
-    resp = jsonify(new_review.to_json())
-    resp.status_code = 201
+    new_revw = Review(**rev_json)
+    new_revw.save()
+    res = jsonify(new_revw.to_json())
+    res.status_code = 201
 
-    return resp
+    return res
 
 
 @app_views.route("/reviews/<review_id>",  methods=["GET"],
